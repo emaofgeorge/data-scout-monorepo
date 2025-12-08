@@ -1,109 +1,167 @@
-# DataScout
+# Data Scout
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A modular scraping platform built with NX monorepo architecture.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Architecture
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+This monorepo contains a scalable, modular scraping platform designed to host multiple independent scraper applications with shared core libraries.
 
-## Generate a library
-
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
-
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+### Structure
 
 ```
-npx nx release
+data-scout/
+├── apps/
+│   └── ikea-circularity/          # IKEA Circularity scraper app
+├── libs/
+│   ├── core-scraper/              # Scraper interfaces and base classes
+│   ├── core-storage/              # Pluggable storage adapters
+│   ├── core-notifications/        # Pluggable notification adapters
+│   └── shared-types/              # Shared TypeScript types
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+### Apps
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **ikea-circularity**: Scraper for IKEA circularity data (placeholder)
 
-## Keep TypeScript project references up to date
+### Libraries
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+- **core-scraper**: Base interfaces and abstract classes for implementing scrapers
+- **core-storage**: Storage abstraction layer supporting multiple backends (JSON, Database, Cloud)
+- **core-notifications**: Notification abstraction layer supporting multiple channels (Email, Slack, Webhook, Console)
+- **shared-types**: Common TypeScript types and interfaces used across the monorepo
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+## Getting Started
 
-```sh
-npx nx sync
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm
+- Firebase project (for production) or Firebase Emulator (for development)
+
+### Installation
+
+```bash
+npm install
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Firebase Setup
 
-```sh
-npx nx sync:check
+#### For Development (Emulator)
+
+```bash
+# Start Firebase emulators
+npm run firebase:emulators
+
+# Or with data persistence
+npm run firebase:emulators:import
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+#### For Production
 
-## Set up CI!
+1. Create a Firebase project
+2. Enable Firestore
+3. Download service account key
+4. Configure `.env` file with credentials
 
-### Step 1
+### Development
 
-To connect to Nx Cloud, run the following command:
+```bash
+# Start IKEA scraper in development mode
+npm start
 
-```sh
-npx nx connect
+# Start with watch mode
+npm run start:dev
+
+# Build all projects
+npm run build
+
+# Build only ikea-circularity
+npm run build:ikea
+
+# Build only libraries
+npm run build:libs
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+### Testing
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+# Run all tests
+npm test
 
-### Step 2
+# Run tests for ikea-circularity
+npm run test:ikea
 
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+# Run tests in watch mode
+npm run test:watch
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Linting & Formatting
 
-## Install Nx Console
+```bash
+# Lint all projects
+npm run lint
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+# Lint and fix
+npm run lint:fix
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# Format code
+npm run format
 
-## Useful links
+# Check formatting
+npm run format:check
+```
 
-Learn more:
+### Utilities
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+# Visualize project graph
+npm run graph
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# Clean NX cache
+npm run clean
+
+# Sync workspace
+npm run sync
+```
+
+### Adding New Scrapers
+
+To add a new scraper application:
+
+```bash
+npx nx g @nx/node:application <scraper-name> --directory=apps/<scraper-name>
+```
+
+## Available Scripts
+
+| Command                      | Description                 |
+| ---------------------------- | --------------------------- |
+| `npm start`                  | Start ikea-circularity app  |
+| `npm run start:dev`          | Start with watch mode       |
+| `npm run build`              | Build all projects          |
+| `npm run build:ikea`         | Build ikea-circularity only |
+| `npm run build:libs`         | Build all libraries         |
+| `npm test`                   | Run all tests               |
+| `npm run test:ikea`          | Test ikea-circularity       |
+| `npm run lint`               | Lint all projects           |
+| `npm run lint:fix`           | Lint and auto-fix           |
+| `npm run format`             | Format code with Prettier   |
+| `npm run graph`              | Visualize dependency graph  |
+| `npm run firebase:emulators` | Start Firebase emulators    |
+| `npm run clean`              | Clean NX cache              |
+
+## Roadmap
+
+- [x] Implement Firestore storage adapter
+- [x] Implement HTTP client with browser spoofing
+- [x] Implement IKEA Circularity scraper logic
+- [x] Add data synchronization with Firestore
+- [ ] Add notification adapters (Email, Slack, Webhook)
+- [ ] Add scheduling capabilities (cron jobs)
+- [ ] Add monitoring and health checks
+- [ ] Add web dashboard for data visualization
+- [ ] Add more scraper applications
+
+## License
+
+MIT

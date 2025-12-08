@@ -2,5 +2,24 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": []
+  "references": [
+    {
+      "path": "./apps/ikea-circularity-e2e"
+    },
+    {
+      "path": "./apps/ikea-circularity"
+    },
+    {
+      "path": "./libs/core-scraper"
+    },
+    {
+      "path": "./libs/core-storage"
+    },
+    {
+      "path": "./libs/core-notifications"
+    },
+    {
+      "path": "./libs/shared-types"
+    }
+  ]
 }

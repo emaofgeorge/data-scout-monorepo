@@ -34,6 +34,20 @@ yarn-error.log
 testem.log
 /typings
 
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+**/serviceAccountKey.json
+**/firebase-credentials*.json
+
+# Firebase
+.firebase/
+firebase-data/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
 # System Files
 .DS_Store
 Thumbs.db
@@ -42,3 +56,5 @@ Thumbs.db
 .nx/workspace-data
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+
+test-output
