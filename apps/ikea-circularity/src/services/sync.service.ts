@@ -186,10 +186,14 @@ export class IkeaSyncService {
     added: number;
     updated: number;
     removed: number;
+    addedProducts: IkeaProduct[];
+    removedProducts: IkeaProduct[];
   }> {
     let added = 0;
     let updated = 0;
     let removed = 0;
+    const addedProducts: IkeaProduct[] = [];
+    const removedProducts: IkeaProduct[] = [];
 
     // Get existing products for this store
     const existingProducts = await this.productsAdapter.query(
@@ -288,12 +292,17 @@ export class IkeaSyncService {
 
         await this.productsAdapter.save(newProduct, product.id);
         added++;
+        addedProducts.push(product);
       }
     }
 
     // Remove products that no longer exist
     for (const productId of existingProductsMap.keys()) {
       if (!newProductIds.has(productId)) {
+        const removedProduct = existingProductsMap.get(productId);
+        if (removedProduct) {
+          removedProducts.push(removedProduct as unknown as IkeaProduct);
+        }
         await this.productsAdapter.delete(productId);
         removed++;
       }
@@ -309,7 +318,7 @@ export class IkeaSyncService {
       }`
     );
 
-    return { added, updated, removed };
+    return { added, updated, removed, addedProducts, removedProducts };
   }
 
   /**

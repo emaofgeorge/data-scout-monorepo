@@ -8,11 +8,13 @@ import {
   IkeaProductsSearchResponse,
 } from '@data-scout/shared-types';
 import { IkeaSyncService } from '../services/sync.service';
+import { NotificationService } from '../services/notification.service';
 
 export interface IkeaScraperConfig {
   name: string;
   url: string;
   stores: IkeaStore[];
+  notificationService?: NotificationService;
 }
 
 export interface IkeaScraperResult {
@@ -37,6 +39,7 @@ export interface IkeaScraperResult {
 export class IkeaCircularityScraper extends BaseScraper<IkeaScraperResult> {
   private httpClient: BrowserHttpClient;
   private syncService: IkeaSyncService;
+  private notificationService?: NotificationService;
   private readonly CATEGORIES_URL =
     'https://web-api.ikea.com/circular/circular-asis/api/public/categories';
   private readonly PRODUCTS_URL =
@@ -60,6 +63,7 @@ export class IkeaCircularityScraper extends BaseScraper<IkeaScraperResult> {
     super(config);
     this.httpClient = new BrowserHttpClient();
     this.syncService = new IkeaSyncService();
+    this.notificationService = config.notificationService;
   }
 
   override async initialize(): Promise<void> {
@@ -114,6 +118,20 @@ export class IkeaCircularityScraper extends BaseScraper<IkeaScraperResult> {
           store.id,
           products
         );
+
+        // Send notifications for product changes
+        if (this.notificationService) {
+          await this.notificationService.notifyProductsAdded(
+            store.id,
+            store.name,
+            syncStats.addedProducts
+          );
+          await this.notificationService.notifyProductsRemoved(
+            store.id,
+            store.name,
+            syncStats.removedProducts
+          );
+        }
 
         // Accumulate sync statistics
         results.syncStats.totalAdded += syncStats.added;

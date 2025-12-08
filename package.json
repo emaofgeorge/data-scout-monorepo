@@ -5,6 +5,8 @@
   "scripts": {
     "start": "nx serve ikea-circularity",
     "start:dev": "nx serve ikea-circularity --watch",
+    "start:bot": "ts-node apps/ikea-circularity/src/bot.ts",
+    "start:webhook": "ts-node apps/ikea-circularity/src/webhook.ts",
     "build": "nx run-many -t build",
     "build:ikea": "nx build ikea-circularity",
     "build:libs": "nx run-many -t build --projects=core-scraper,core-storage,core-notifications,shared-types",
@@ -65,6 +67,7 @@
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "firebase-admin": "^13.6.0",
+    "telegraf": "^4.16.3",
     "user-agents": "^1.1.669"
   }
 }

@@ -5,20 +5,12 @@
  * Syncs data to Firestore and handles product lifecycle (add/update/remove)
  */
 
-// Set Firestore emulator BEFORE loading anything else
-if (
-  process.env.USE_FIREBASE_EMULATOR === 'true' ||
-  process.env.NODE_ENV === 'development'
-) {
-  process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-}
-
-// Load environment variables from .env file
 import 'dotenv/config';
 
 import * as admin from 'firebase-admin';
 import { IkeaCircularityScraper } from './scraper/ikea-scraper';
 import { IkeaSyncService } from './services/sync.service';
+import { NotificationService } from './services/notification.service';
 import { fetchIkeaStores } from './services/store-fetcher';
 
 /**
@@ -102,18 +94,48 @@ async function main() {
     const syncService = new IkeaSyncService();
     const storesSyncResult = await syncService.syncAllStores(allStores);
 
-    // Filter by specific store ID if provided
+    // Initialize notification service
+    const notificationService = new NotificationService({
+      enabled: process.env.NOTIFICATIONS_ENABLED === 'true',
+      environment:
+        process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      telegram: process.env.TELEGRAM_BOT_TOKEN
+        ? {
+            botToken: process.env.TELEGRAM_BOT_TOKEN,
+          }
+        : undefined,
+    });
+
+    // Notify about store changes
+    if (storesSyncResult.newStores.length > 0) {
+      await notificationService.notifyStoresAdded(
+        storesSyncResult.newStores.map((s) => s.name)
+      );
+    }
+    if (storesSyncResult.removedStores.length > 0) {
+      await notificationService.notifyStoresRemoved(
+        storesSyncResult.removedStores.map((s) => s.name)
+      );
+    }
+
+    // Filter by specific store IDs if provided
     let stores = allStores;
-    const filterStoreId = process.env.STORE_ID;
-    if (filterStoreId) {
-      const filteredStore = stores.find((s) => s.id === filterStoreId);
-      if (filteredStore) {
-        console.log(
-          `\n🎯 Filtering for single store: ${filteredStore.name} (ID: ${filterStoreId})\n`
+    const filterStoreIds = process.env.STORE_IDS;
+    if (filterStoreIds) {
+      const storeIdList = filterStoreIds.split(',').map((id) => id.trim());
+      const filteredStores = allStores.filter((s) =>
+        storeIdList.includes(s.id)
+      );
+
+      if (filteredStores.length > 0) {
+        console.log(`\n🎯 Filtering for ${filteredStores.length} store(s):`);
+        filteredStores.forEach((s) =>
+          console.log(`   - ${s.name} (ID: ${s.id})`)
         );
-        stores = [filteredStore];
+        console.log('');
+        stores = filteredStores;
       } else {
-        console.error(`\n❌ Store ID '${filterStoreId}' not found!\n`);
+        console.error(`\n❌ No stores found with IDs: ${filterStoreIds}\n`);
         console.log('Available store IDs:');
         allStores.forEach((s) => console.log(`  - ${s.id}: ${s.name}`));
         process.exit(1);
@@ -125,6 +147,7 @@ async function main() {
       name: 'ikea-circularity',
       url: 'https://www.ikea.com/it/it/circular/second-hand/',
       stores: stores,
+      notificationService: notificationService,
     });
 
     // Initialize scraper
