@@ -22,16 +22,27 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
+      - name: Install dependencies cache
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-
 
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Remove lockfiles (ignore lockfile)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "Removing package-lock.json to ignore lockfile"
+            rm package-lock.json
+          fi
+          if [ -f npm-shrinkwrap.json ]; then
+            echo "Removing npm-shrinkwrap.json to ignore lockfile"
+            rm npm-shrinkwrap.json
+          fi
+
+      - name: Install dependencies (ignoring lockfile)
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
       - name: Lint IKEA
         run: npm run lint:ikea
