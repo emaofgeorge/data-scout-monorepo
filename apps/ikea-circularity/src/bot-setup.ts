@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import path from 'path';
 import { IkeaTelegramBot } from './services/telegram-bot.service';
 import { fetchIkeaStores } from './services/store-fetcher';
 
@@ -25,11 +26,22 @@ export async function initializeFirebase(): Promise<void> {
 
     // Production mode
     if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-      const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        projectId: process.env.FIREBASE_PROJECT_ID,
-      });
+      const rawPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+      const serviceAccountPath = path.isAbsolute(rawPath)
+        ? rawPath
+        : path.resolve(process.cwd(), rawPath);
+      try {
+        const serviceAccount = require(serviceAccountPath);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+          projectId: process.env.FIREBASE_PROJECT_ID,
+        });
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        throw new Error(
+          `Failed to load Firebase service account from ${serviceAccountPath}: ${errMsg}`
+        );
+      }
     } else if (process.env.FIREBASE_PROJECT_ID) {
       admin.initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID });
     } else {

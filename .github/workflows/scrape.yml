@@ -66,8 +66,8 @@ jobs:
         env:
           NODE_ENV: production
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          # If the secret was provided we wrote the file above
-          FIREBASE_SERVICE_ACCOUNT_PATH: ./firebase-service-account.json
+          # If the secret was provided we wrote the file above (absolute path)
+          FIREBASE_SERVICE_ACCOUNT_PATH: ${{ github.workspace }}/firebase-service-account.json
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           NOTIFICATIONS_ENABLED: true
         run: |
