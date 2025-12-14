@@ -466,9 +466,57 @@ export class IkeaTelegramBot {
         const userId = ctx.from?.id.toString();
         if (userId) {
           await this.userService.deactivateUser(userId);
+          // Optionally remove preferences when user blocks the bot
+          if (process.env.CLEAR_PREFS_ON_UNSUBSCRIBE === 'true') {
+            try {
+              await this.userService.deletePreferences(
+                userId,
+                'ikea-circularity'
+              );
+            } catch (err) {
+              console.error('Failed to delete preferences after block:', err);
+            }
+          }
         }
       }
       console.error('Bot error:', err);
+    });
+
+    // Handle chat membership changes (user removes bot or leaves)
+    this.bot.on('my_chat_member', async (ctx) => {
+      try {
+        const update = ctx.update as Update;
+        // `my_chat_member` update is not present on all Update variants in types, narrow safely
+        const myChat = (update as any).my_chat_member;
+        const newStatus = myChat?.new_chat_member?.status || '';
+        const chatId =
+          myChat?.chat?.id?.toString() ||
+          (ctx.chat?.id ? ctx.chat.id.toString() : ctx.from?.id?.toString());
+
+        // statuses: 'kicked', 'left' indicate the bot was removed/unavailable
+        if (chatId && (newStatus === 'kicked' || newStatus === 'left')) {
+          const userId = chatId;
+          console.log(
+            `User ${userId} removed the bot (status: ${newStatus}), deactivating.`
+          );
+          await this.userService.deactivateUser(userId);
+          if (process.env.CLEAR_PREFS_ON_UNSUBSCRIBE === 'true') {
+            try {
+              await this.userService.deletePreferences(
+                userId,
+                'ikea-circularity'
+              );
+            } catch (err) {
+              console.error(
+                'Failed to delete preferences after my_chat_member:',
+                err
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error handling my_chat_member update:', err);
+      }
     });
   }
 

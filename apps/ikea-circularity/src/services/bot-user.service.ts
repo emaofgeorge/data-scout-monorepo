@@ -204,6 +204,47 @@ export class BotUserService {
   }
 
   /**
+   * Get all active users subscribed to a store together with their preferences
+   */
+  async getUsersSubscribedToStoreWithPreferences(storeId: string): Promise<
+    {
+      chatId: string;
+      userId: string;
+      preferences: IkeaCircularityPreferences;
+    }[]
+  > {
+    const results: {
+      chatId: string;
+      userId: string;
+      preferences: IkeaCircularityPreferences;
+    }[] = [];
+
+    const allPrefs = await this.preferencesAdapter.getAll();
+
+    for (const pref of allPrefs) {
+      if (
+        pref.botType === 'ikea-circularity' &&
+        pref.preferences.subscribedStores.includes(storeId)
+      ) {
+        const users = await this.usersAdapter.query(
+          'userId',
+          '==',
+          pref.userId
+        );
+        if (users.length > 0 && users[0].isActive) {
+          results.push({
+            chatId: users[0].chatId,
+            userId: pref.userId,
+            preferences: pref.preferences,
+          });
+        }
+      }
+    }
+
+    return results;
+  }
+
+  /**
    * Deactivate user (when they block the bot)
    */
   async deactivateUser(userId: string): Promise<void> {
@@ -213,6 +254,22 @@ export class BotUserService {
       user.isActive = false;
       user.updatedAt = new Date();
       await this.usersAdapter.save(user, userId);
+    }
+  }
+
+  /**
+   * Delete preferences for a user (useful when user explicitly removes the bot)
+   */
+  async deletePreferences(
+    userId: string,
+    botType: 'ikea-circularity'
+  ): Promise<void> {
+    const docId = `${userId}-${botType}`;
+    try {
+      await this.preferencesAdapter.delete(docId);
+    } catch (error) {
+      console.error(`Failed to delete preferences ${docId}:`, error);
+      throw error;
     }
   }
 

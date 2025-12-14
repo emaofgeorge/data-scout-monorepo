@@ -32,22 +32,20 @@ export class IkeaSyncService {
 
   /**
    * Sync all stores from IKEA website
-   * Detects new stores added or stores removed
+   * Updates store info but NEVER removes stores from Firebase
+   * This preserves historical data
    */
-  async syncAllStores(allStores: IkeaStore[]): Promise<{
+  async syncAllStores(activeStores: IkeaStore[]): Promise<{
     added: number;
     updated: number;
-    removed: number;
+    skipped: number;
     newStores: IkeaStore[];
-    removedStores: IkeaStoreDocument[];
   }> {
-    console.log('\n🏪 Syncing all IKEA stores...');
+    console.log('\n🏪 Syncing active stores to Firestore...');
 
     let added = 0;
     let updated = 0;
-    let removed = 0;
     const newStores: IkeaStore[] = [];
-    const removedStores: IkeaStoreDocument[] = [];
 
     // Get existing stores from Firestore
     const existingStores = await this.storesAdapter.getAll();
@@ -56,16 +54,16 @@ export class IkeaSyncService {
       existingStoresMap.set(s.id, s);
     });
 
-    // Create set of new store IDs
-    const newStoreIds = new Set(allStores.map((s) => s.id));
-
-    // Process all stores (add or update)
-    for (const store of allStores) {
+    // Process only active stores (add or update)
+    for (const store of activeStores) {
       const existingStore = existingStoresMap.get(store.id);
 
       if (existingStore) {
         // Update existing store (just update lastSync and name if changed)
-        if (existingStore.name !== store.name) {
+        if (
+          existingStore.name !== store.name ||
+          existingStore.city !== store.city
+        ) {
           const storeDoc: IkeaStoreDocument = {
             id: store.id,
             name: store.name,
@@ -94,33 +92,30 @@ export class IkeaSyncService {
         await this.storesAdapter.save(storeDoc, store.id);
         added++;
         newStores.push(store);
-        console.log(`  🆕 NEW STORE DETECTED: ${store.name} (${store.city})`);
+        console.log(`  🆕 NEW STORE: ${store.name} (${store.city})`);
       }
     }
 
-    // Check for removed stores
-    for (const [storeId, existingStore] of existingStoresMap) {
-      if (!newStoreIds.has(storeId)) {
-        removedStores.push(existingStore);
-        removed++;
-        console.log(
-          `  🚫 STORE REMOVED: ${existingStore.name} (${existingStore.city})`
-        );
-        // Note: We keep the store in DB for historical data
-        // but could mark it as inactive if needed
-      }
-    }
+    // Calculate skipped stores (in Firebase but not active)
+    const activeStoreIds = new Set(activeStores.map((s) => s.id));
+    const skipped = existingStores.filter(
+      (s) => !activeStoreIds.has(s.id)
+    ).length;
 
     // Summary
-    if (added > 0 || removed > 0) {
-      console.log(`\n  ⚠️  STORE CHANGES DETECTED:`);
+    if (added > 0 || updated > 0) {
+      console.log(`\n  ℹ️  Store sync summary:`);
       if (added > 0) console.log(`     • ${added} new store(s) added`);
-      if (removed > 0) console.log(`     • ${removed} store(s) removed`);
+      if (updated > 0) console.log(`     • ${updated} store(s) updated`);
     } else {
-      console.log(`  ✓ No store changes detected`);
+      console.log(`  ✓ No store changes`);
     }
 
-    return { added, updated, removed, newStores, removedStores };
+    if (skipped > 0) {
+      console.log(`  ⏭️  ${skipped} store(s) in Firebase not active (skipped)`);
+    }
+
+    return { added, updated, skipped, newStores };
   }
 
   /**
@@ -198,12 +193,14 @@ export class IkeaSyncService {
     removed: number;
     addedProducts: IkeaProduct[];
     removedProducts: IkeaProduct[];
+    priceChangedProducts: IkeaProduct[];
   }> {
     let added = 0;
     let updated = 0;
     let removed = 0;
     const addedProducts: IkeaProduct[] = [];
     const removedProducts: IkeaProduct[] = [];
+    const priceChangedProducts: IkeaProduct[] = [];
 
     const productDelay = getEnvMs('SCRAPER_PRODUCT_DELAY_MS', 0);
     if (productDelay > 0) {
@@ -242,6 +239,11 @@ export class IkeaSyncService {
             JSON.stringify(product.images || []);
 
         if (hasChanged) {
+          // Detect price change specifically
+          const priceChanged =
+            existingProduct.price.current !== product.price.current ||
+            existingProduct.price.original !== product.price.original;
+
           // Update existing product only if changed
           const updatedProduct: IkeaProductDocument = {
             id: product.id,
@@ -273,6 +275,10 @@ export class IkeaSyncService {
 
           await this.productsAdapter.save(updatedProduct, product.id);
           updated++;
+
+          if (priceChanged) {
+            priceChangedProducts.push(product);
+          }
 
           if (productDelay > 0) await sleep(productDelay);
         }
@@ -339,7 +345,14 @@ export class IkeaSyncService {
       }`
     );
 
-    return { added, updated, removed, addedProducts, removedProducts };
+    return {
+      added,
+      updated,
+      removed,
+      addedProducts,
+      removedProducts,
+      priceChangedProducts,
+    };
   }
 
   /**

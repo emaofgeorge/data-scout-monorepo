@@ -30,6 +30,7 @@ export async function initializeFirebase(): Promise<void> {
       const serviceAccountPath = path.isAbsolute(rawPath)
         ? rawPath
         : path.resolve(process.cwd(), rawPath);
+
       try {
         const serviceAccount = require(serviceAccountPath);
         admin.initializeApp({
@@ -57,18 +58,35 @@ export async function initializeFirebase(): Promise<void> {
   }
 }
 
+/**
+ * Initialize bot with stores from Contentful (or fallback)
+ * Bot will always show stores from the same source as scraper
+ */
 export async function initializeBot(options: {
   token: string;
   webhookUrl?: string;
 }): Promise<IkeaTelegramBot> {
-  const stores = await fetchIkeaStores();
-  const bot = new IkeaTelegramBot({
-    token: options.token,
-    availableStores: stores,
-    webhookUrl: options.webhookUrl,
-  });
-  if (options.webhookUrl) {
-    await bot.setWebhook(options.webhookUrl);
+  console.log('🤖 Initializing bot with stores...');
+
+  try {
+    // Fetch stores using same logic as scraper
+    const stores = await fetchIkeaStores();
+
+    console.log(`✅ Bot configured with ${stores.length} store(s)`);
+
+    const bot = new IkeaTelegramBot({
+      token: options.token,
+      availableStores: stores,
+      webhookUrl: options.webhookUrl,
+    });
+
+    if (options.webhookUrl) {
+      await bot.setWebhook(options.webhookUrl);
+    }
+
+    return bot;
+  } catch (error) {
+    console.error('❌ Failed to initialize bot with stores:', error);
+    throw error;
   }
-  return bot;
 }

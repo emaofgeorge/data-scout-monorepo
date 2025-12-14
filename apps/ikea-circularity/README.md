@@ -41,6 +41,17 @@ FIREBASE_PROJECT_ID=your-firebase-project-id
 FIREBASE_SERVICE_ACCOUNT_PATH=./path/to/serviceAccountKey.json
 ```
 
+Se vuoi gestire la lista degli store da Contentful (consigliato), aggiungi anche:
+
+```bash
+CONTENTFUL_SPACE_ID=your_contentful_space_id
+CONTENTFUL_ENVIRONMENT=master
+CONTENTFUL_CDA_TOKEN=your_contentful_delivery_api_token
+# Opzionale: imposta a 'true' per fallire rapidamente se Contentful non è configurato o ritorna 0 store
+# Usalo per forzare Contentful come fonte di verità
+CONTENTFUL_STRICT=true
+```
+
 ### 3. Installazione
 
 ```bash

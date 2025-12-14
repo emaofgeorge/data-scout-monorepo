@@ -138,6 +138,17 @@ export class IkeaCircularityScraper extends BaseScraper<IkeaScraperResult> {
             store.name,
             syncStats.removedProducts
           );
+          // Price changes
+          if (
+            (syncStats as any).priceChangedProducts &&
+            (syncStats as any).priceChangedProducts.length > 0
+          ) {
+            await this.notificationService.notifyPriceChanges(
+              store.id,
+              store.name,
+              (syncStats as any).priceChangedProducts
+            );
+          }
         }
 
         // Accumulate sync statistics

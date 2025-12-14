@@ -51,9 +51,9 @@ export class NotificationService {
   ): Promise<void> {
     if (!this.config.enabled || products.length === 0) return;
 
-    // Get users subscribed to this store from Firestore
-    const subscribedChatIds =
-      await this.userService.getUsersSubscribedToStore(storeId);
+    // Get users subscribed to this store with preferences from Firestore
+    const subscribedUsers =
+      await this.userService.getUsersSubscribedToStoreWithPreferences(storeId);
 
     if (this.config.environment === 'development') {
       // Log to console in development
@@ -61,14 +61,17 @@ export class NotificationService {
         const message = this.formatProductAddedMessage(storeName, product);
         console.log(`\n🆕 [Notification] ${message.title}`);
         console.log(`   ${message.body}`);
-        console.log(`   Subscribers: ${subscribedChatIds.length}`);
+        console.log(`   Subscribers: ${subscribedUsers.length}`);
       }
     } else if (this.config.environment === 'production') {
-      // Send to subscribed users in production
+      // Send to subscribed users in production (respect user preferences)
       for (const product of products) {
         const message = this.formatProductAddedMessage(storeName, product);
 
-        for (const chatId of subscribedChatIds) {
+        for (const u of subscribedUsers) {
+          if (!u.preferences.notifyOnNewProducts) continue;
+
+          const chatId = u.chatId;
           try {
             const adapter = this.getTelegramAdapter(chatId);
             if (adapter) {
@@ -91,14 +94,7 @@ export class NotificationService {
               'error_code' in error.response &&
               error.response.error_code === 403
             ) {
-              // Find userId from chatId and deactivate
-              const users = await this.userService.getActiveUsers(
-                'ikea-circularity'
-              );
-              const user = users.find((u) => u.chatId === chatId);
-              if (user) {
-                await this.userService.deactivateUser(user.userId);
-              }
+              await this.userService.deactivateUser(u.userId);
             }
           }
         }
@@ -116,9 +112,9 @@ export class NotificationService {
   ): Promise<void> {
     if (!this.config.enabled || products.length === 0) return;
 
-    // Get users subscribed to this store from Firestore
-    const subscribedChatIds =
-      await this.userService.getUsersSubscribedToStore(storeId);
+    // Get users subscribed to this store with preferences from Firestore
+    const subscribedUsers =
+      await this.userService.getUsersSubscribedToStoreWithPreferences(storeId);
 
     if (this.config.environment === 'development') {
       // Log to console in development
@@ -126,14 +122,17 @@ export class NotificationService {
         const message = this.formatProductRemovedMessage(storeName, product);
         console.log(`\n🔴 [Notification] ${message.title}`);
         console.log(`   ${message.body}`);
-        console.log(`   Subscribers: ${subscribedChatIds.length}`);
+        console.log(`   Subscribers: ${subscribedUsers.length}`);
       }
     } else if (this.config.environment === 'production') {
-      // Send to subscribed users in production
+      // Send to subscribed users in production (respect user preferences)
       for (const product of products) {
         const message = this.formatProductRemovedMessage(storeName, product);
 
-        for (const chatId of subscribedChatIds) {
+        for (const u of subscribedUsers) {
+          if (!u.preferences.notifyOnRemovedProducts) continue;
+
+          const chatId = u.chatId;
           try {
             const adapter = this.getTelegramAdapter(chatId);
             if (adapter) {
@@ -156,13 +155,7 @@ export class NotificationService {
               'error_code' in error.response &&
               error.response.error_code === 403
             ) {
-              const users = await this.userService.getActiveUsers(
-                'ikea-circularity'
-              );
-              const user = users.find((u) => u.chatId === chatId);
-              if (user) {
-                await this.userService.deactivateUser(user.userId);
-              }
+              await this.userService.deactivateUser(u.userId);
             }
           }
         }
@@ -198,76 +191,73 @@ export class NotificationService {
   }
 
   /**
-   * Notify about new stores added (broadcast to all users)
+   * Notify about price changes for products in a store
    */
-  async notifyStoresAdded(storeNames: string[]): Promise<void> {
-    if (!this.config.enabled || storeNames.length === 0) return;
+  async notifyPriceChanges(
+    storeId: string,
+    storeName: string,
+    products: IkeaProduct[]
+  ): Promise<void> {
+    if (!this.config.enabled || products.length === 0) return;
 
-    const message = {
-      title: '🏪 Nuovi Store IKEA',
-      body: `Aggiunti ${storeNames.length} nuovi store:\n${storeNames.map((name) => `• ${name}`).join('\n')}`,
-      severity: 'info' as const,
-    };
+    const subscribedUsers =
+      await this.userService.getUsersSubscribedToStoreWithPreferences(storeId);
 
     if (this.config.environment === 'development') {
-      console.log(`\n🏪 [Notification] ${message.title}`);
-      console.log(`   ${message.body}`);
+      for (const product of products) {
+        const message = this.formatPriceChangeMessage(storeName, product);
+        console.log(`\n🔄 [Price] ${message.title}`);
+        console.log(`   ${message.body}`);
+        console.log(`   Subscribers: ${subscribedUsers.length}`);
+      }
     } else {
-      // Broadcast to all active users
-      const activeUsers = await this.userService.getActiveUsers(
-        'ikea-circularity'
-      );
-
-      for (const user of activeUsers) {
-        try {
-          const adapter = this.getTelegramAdapter(user.chatId);
-          if (adapter) {
-            await adapter.send(message);
+      for (const product of products) {
+        const message = this.formatPriceChangeMessage(storeName, product);
+        for (const u of subscribedUsers) {
+          if (!u.preferences.notifyOnPriceChanges) continue;
+          const chatId = u.chatId;
+          try {
+            const adapter = this.getTelegramAdapter(chatId);
+            if (adapter) {
+              await adapter.send(message);
+            }
+          } catch (error: unknown) {
+            const errorMessage =
+              error instanceof Error ? error.message : 'Unknown error';
+            console.error(
+              `Failed to send price change to ${chatId}:`,
+              errorMessage
+            );
+            if (
+              typeof error === 'object' &&
+              error !== null &&
+              'response' in error &&
+              typeof error.response === 'object' &&
+              error.response !== null &&
+              'error_code' in error.response &&
+              error.response.error_code === 403
+            ) {
+              await this.userService.deactivateUser(u.userId);
+            }
           }
-        } catch (error) {
-          console.error(
-            `Failed to send store notification to ${user.chatId}:`,
-            error
-          );
         }
       }
     }
   }
 
-  /**
-   * Notify about stores removed (broadcast to all users)
-   */
-  async notifyStoresRemoved(storeNames: string[]): Promise<void> {
-    if (!this.config.enabled || storeNames.length === 0) return;
-
-    const message = {
-      title: '⚠️ Store IKEA Rimossi',
-      body: `Rimossi ${storeNames.length} store:\n${storeNames.map((name) => `• ${name}`).join('\n')}`,
-      severity: 'warning' as const,
+  private formatPriceChangeMessage(
+    storeName: string,
+    product: IkeaProduct
+  ): { title: string; body: string; severity: 'info' } {
+    const oldPrice = product.price.original ?? product.price.current;
+    const newPrice = product.price.current;
+    const discount = product.price.discount
+      ? ` (-${product.price.discount}%)`
+      : '';
+    return {
+      title: `Cambio Prezzo - ${storeName}`,
+      body: `${product.name}\nDa: €${oldPrice} → A: €${newPrice}${discount}\n🔗 ${product.url}`,
+      severity: 'info',
     };
-
-    if (this.config.environment === 'development') {
-      console.log(`\n⚠️ [Notification] ${message.title}`);
-      console.log(`   ${message.body}`);
-    } else {
-      // Broadcast to all active users
-      const activeUsers = await this.userService.getActiveUsers(
-        'ikea-circularity'
-      );
-
-      for (const user of activeUsers) {
-        try {
-          const adapter = this.getTelegramAdapter(user.chatId);
-          if (adapter) {
-            await adapter.send(message);
-          }
-        } catch (error) {
-          console.error(
-            `Failed to send store notification to ${user.chatId}:`,
-            error
-          );
-        }
-      }
-    }
   }
 }
