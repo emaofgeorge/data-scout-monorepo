@@ -13,8 +13,6 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    env:
-      NODE_ENV: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,6 +45,7 @@ jobs:
 
       - name: Run scraper
         env:
+          NODE_ENV: production
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           # If the secret was provided we wrote the file above
           FIREBASE_SERVICE_ACCOUNT_PATH: ./firebase-service-account.json
