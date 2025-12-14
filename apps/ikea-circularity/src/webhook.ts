@@ -7,75 +7,12 @@
 
 import 'dotenv/config';
 import express from 'express';
-import * as admin from 'firebase-admin';
-import { IkeaTelegramBot } from './services/telegram-bot.service';
-import { fetchIkeaStores } from './services/store-fetcher';
+import { initializeFirebase, initializeBot } from './bot-setup';
 
 const app = express();
 app.use(express.json());
 
-let bot: IkeaTelegramBot | null = null;
-
-/**
- * Initialize Firebase Admin SDK
- */
-function initializeFirebase(): void {
-  if (admin.apps.length > 0) {
-    console.log('✓ Firebase already initialized');
-    return;
-  }
-
-  try {
-    if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-      const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        projectId: process.env.FIREBASE_PROJECT_ID,
-      });
-    } else if (process.env.FIREBASE_PROJECT_ID) {
-      // Use Application Default Credentials (Cloud Run, Cloud Functions)
-      admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-      });
-    } else {
-      throw new Error('Missing Firebase configuration');
-    }
-
-    console.log('✓ Connected to Firebase');
-  } catch (error) {
-    console.error('❌ Firebase initialization failed:', error);
-    throw error;
-  }
-}
-
-/**
- * Initialize bot instance
- */
-async function initializeBot(): Promise<void> {
-  if (!process.env.TELEGRAM_BOT_TOKEN) {
-    throw new Error('TELEGRAM_BOT_TOKEN not found in environment');
-  }
-
-  if (!process.env.TELEGRAM_WEBHOOK_URL) {
-    throw new Error(
-      'TELEGRAM_WEBHOOK_URL not found. Required for webhook mode.'
-    );
-  }
-
-  console.log('🏪 Fetching IKEA stores...');
-  const stores = await fetchIkeaStores();
-  console.log(`✓ Loaded ${stores.length} stores`);
-
-  bot = new IkeaTelegramBot({
-    token: process.env.TELEGRAM_BOT_TOKEN,
-    availableStores: stores,
-    webhookUrl: process.env.TELEGRAM_WEBHOOK_URL,
-  });
-
-  // Set webhook
-  await bot.setWebhook(process.env.TELEGRAM_WEBHOOK_URL);
-  console.log(`✓ Webhook configured: ${process.env.TELEGRAM_WEBHOOK_URL}`);
-}
+let bot: any = null;
 
 /**
  * Health check endpoint
@@ -139,10 +76,19 @@ async function startServer(): Promise<void> {
     console.log('\n🚀 Starting Telegram Bot Webhook Server...\n');
 
     // Initialize Firebase
-    initializeFirebase();
+    await initializeFirebase();
 
-    // Initialize bot and set webhook
-    await initializeBot();
+    // Initialize bot e set webhook
+    if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.TELEGRAM_WEBHOOK_URL) {
+      throw new Error(
+        'TELEGRAM_BOT_TOKEN e TELEGRAM_WEBHOOK_URL sono richiesti'
+      );
+    }
+    bot = await initializeBot({
+      token: process.env.TELEGRAM_BOT_TOKEN,
+      webhookUrl: process.env.TELEGRAM_WEBHOOK_URL,
+    });
+    console.log(`✓ Webhook configured: ${process.env.TELEGRAM_WEBHOOK_URL}`);
 
     // Start Express server
     app.listen(port, () => {

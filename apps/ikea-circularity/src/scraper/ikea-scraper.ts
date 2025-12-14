@@ -8,6 +8,7 @@ import {
   IkeaProductsSearchResponse,
 } from '@data-scout/shared-types';
 import { IkeaSyncService } from '../services/sync.service';
+import { sleep, getEnvMs } from '../utils';
 import { NotificationService } from '../services/notification.service';
 
 export interface IkeaScraperConfig {
@@ -93,7 +94,13 @@ export class IkeaCircularityScraper extends BaseScraper<IkeaScraperResult> {
 
     console.log(`Starting scrape for ${config.stores.length} stores...`);
 
-    for (const store of config.stores) {
+    const storeDelay = getEnvMs('SCRAPER_STORE_DELAY_MS', 0);
+    if (storeDelay > 0) {
+      console.log(`⏱ Store delay enabled: ${storeDelay}ms`);
+    }
+
+    for (let i = 0; i < config.stores.length; i++) {
+      const store = config.stores[i];
       try {
         console.log(`\n📍 Processing store: ${store.name} (${store.id})`);
 
@@ -146,6 +153,11 @@ export class IkeaCircularityScraper extends BaseScraper<IkeaScraperResult> {
 
         results.totalCategories += categories.length;
         results.totalProducts += products.length;
+
+        // Delay before next store (unless last)
+        if (storeDelay > 0 && i < config.stores.length - 1) {
+          await sleep(storeDelay);
+        }
       } catch (error) {
         console.error(`  ✗ Error processing store ${store.name}:`, error);
         // Continue with next store even if one fails

@@ -7,6 +7,7 @@ import {
   IkeaCategoryDocument,
   IkeaProductDocument,
 } from '@data-scout/shared-types';
+import { sleep, getEnvMs } from '../utils';
 
 /**
  * Service to synchronize IKEA data with Firestore
@@ -154,6 +155,11 @@ export class IkeaSyncService {
     // Delete old categories for this store
     await this.categoriesAdapter.deleteByQuery('storeId', '==', storeId);
 
+    const categoryDelay = getEnvMs('SCRAPER_CATEGORY_DELAY_MS', 0);
+    if (categoryDelay > 0) {
+      console.log(`  ⏱ Category delay enabled: ${categoryDelay}ms`);
+    }
+
     // Add new categories
     for (const category of categories) {
       const categoryDoc: IkeaCategoryDocument = {
@@ -170,6 +176,10 @@ export class IkeaSyncService {
         categoryDoc,
         `${storeId}-${category.id}`
       );
+
+      if (categoryDelay > 0) {
+        await sleep(categoryDelay);
+      }
     }
   }
 
@@ -194,6 +204,11 @@ export class IkeaSyncService {
     let removed = 0;
     const addedProducts: IkeaProduct[] = [];
     const removedProducts: IkeaProduct[] = [];
+
+    const productDelay = getEnvMs('SCRAPER_PRODUCT_DELAY_MS', 0);
+    if (productDelay > 0) {
+      console.log(`  ⏱ Product delay enabled: ${productDelay}ms`);
+    }
 
     // Get existing products for this store
     const existingProducts = await this.productsAdapter.query(
@@ -258,6 +273,8 @@ export class IkeaSyncService {
 
           await this.productsAdapter.save(updatedProduct, product.id);
           updated++;
+
+          if (productDelay > 0) await sleep(productDelay);
         }
         // If nothing changed, skip save
       } else {
@@ -293,6 +310,8 @@ export class IkeaSyncService {
         await this.productsAdapter.save(newProduct, product.id);
         added++;
         addedProducts.push(product);
+
+        if (productDelay > 0) await sleep(productDelay);
       }
     }
 
@@ -305,6 +324,8 @@ export class IkeaSyncService {
         }
         await this.productsAdapter.delete(productId);
         removed++;
+
+        if (productDelay > 0) await sleep(productDelay);
       }
     }
 

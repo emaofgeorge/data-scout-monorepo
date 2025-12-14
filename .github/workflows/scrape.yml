@@ -1,0 +1,57 @@
+name: Daily IKEA Circularity Scrape
+
+on:
+  schedule:
+    # Runs daily at 09:00 UTC (adjust if you prefer a different hour between 08-20)
+    - cron: '0 9 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: ikea-circularity-scrape
+  cancel-in-progress: true
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint IKEA
+        run: npm run lint:ikea
+
+      - name: Build IKEA app
+        run: npm run build:ikea
+
+      - name: Write Firebase service account (if provided)
+        id: write-firebase
+        run: |
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "$FIREBASE_SERVICE_ACCOUNT" > ./firebase-service-account.json
+            echo "WROTE=1" >> $GITHUB_ENV
+          else
+            echo "WROTE=0" >> $GITHUB_ENV
+          fi
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Run scraper
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          # If the secret was provided we wrote the file above
+          FIREBASE_SERVICE_ACCOUNT_PATH: ./firebase-service-account.json
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          NOTIFICATIONS_ENABLED: true
+        run: |
+          echo "Starting scraper (NODE_ENV=$NODE_ENV)";
+          node apps/ikea-circularity/dist/main.js

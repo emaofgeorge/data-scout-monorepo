@@ -7,69 +7,13 @@
 
 import 'dotenv/config';
 
-import * as admin from 'firebase-admin';
+import { initializeFirebase } from './bot-setup';
 import { IkeaCircularityScraper } from './scraper/ikea-scraper';
 import { IkeaSyncService } from './services/sync.service';
 import { NotificationService } from './services/notification.service';
 import { fetchIkeaStores } from './services/store-fetcher';
 
-/**
- * Initialize Firebase Admin SDK
- */
-function initializeFirebase(): void {
-  try {
-    // Check if using Firebase Emulator
-    const useEmulator =
-      process.env.USE_FIREBASE_EMULATOR === 'true' ||
-      process.env.NODE_ENV === 'development';
-
-    if (useEmulator) {
-      // Initialize with demo project for emulator
-      console.log('🔧 Using Firebase Emulator');
-
-      // Set environment variables for Firestore emulator BEFORE initialization
-      process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-      console.log(
-        `🔍 FIRESTORE_EMULATOR_HOST set to: ${process.env.FIRESTORE_EMULATOR_HOST}`
-      );
-
-      // Use project ID from env or default demo project for emulator
-      const projectId =
-        process.env.FIREBASE_PROJECT_ID || 'demo-ikea-circularity';
-
-      admin.initializeApp({
-        projectId: projectId,
-      });
-
-      console.log(`✓ Connected to Firebase Emulator (project: ${projectId})`);
-    } else {
-      // Production mode - require credentials
-      if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-        const serviceAccount = require(process.env
-          .FIREBASE_SERVICE_ACCOUNT_PATH);
-
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-          projectId: process.env.FIREBASE_PROJECT_ID,
-        });
-      } else if (process.env.FIREBASE_PROJECT_ID) {
-        // Use Application Default Credentials (for Cloud environments)
-        admin.initializeApp({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-        });
-      } else {
-        throw new Error(
-          'Firebase configuration missing. Set FIREBASE_PROJECT_ID or FIREBASE_SERVICE_ACCOUNT_PATH, or set USE_FIREBASE_EMULATOR=true'
-        );
-      }
-
-      console.log('✓ Firebase initialized successfully');
-    }
-  } catch (error) {
-    console.error('✗ Failed to initialize Firebase:', error);
-    throw error;
-  }
-}
+// Firebase initialization handled by `initializeFirebase` in `bot-setup.ts`
 
 /**
  * Main application logic
