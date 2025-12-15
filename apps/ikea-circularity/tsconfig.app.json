@@ -23,9 +23,6 @@
       "path": "../../libs/core-storage/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/core-notifications/tsconfig.lib.json"
-    },
-    {
       "path": "../../libs/shared-types/tsconfig.lib.json"
     },
     {

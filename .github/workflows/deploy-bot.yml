@@ -1,0 +1,31 @@
+name: Deploy Bot to Cloudflare Workers
+on:
+  push:
+    paths:
+      - 'apps/ikea-circularity/**'
+      - '.github/workflows/deploy-bot.yml'
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund --legacy-peer-deps
+      - name: Lint bot
+        run: npm run lint:ikea
+      - name: Build bot
+        run: npm run build --workspace=apps/ikea-circularity
+      - name: Publish to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN_BOT }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/ikea-circularity
+          command: publish
