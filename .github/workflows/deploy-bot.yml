@@ -1,4 +1,5 @@
 name: Deploy Bot to Cloudflare Workers
+
 on:
   push:
     paths:
