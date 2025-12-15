@@ -15,6 +15,3 @@ CONTENTFUL_CDA_TOKEN = ""
 CONTENTFUL_ENVIRONMENT = ""
 PORT = "3000"
 CLEAR_PREFS_ON_UNSUBSCRIBE = "true"
-
-[triggers]
-crons = ["15 8-20 * * *"]

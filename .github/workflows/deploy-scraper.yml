@@ -12,16 +12,40 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Install dependencies
+          node-version: 22
+
+      - name: Install dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Remove lockfiles (ignore lockfile)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "Removing package-lock.json to ignore lockfile"
+            rm package-lock.json
+          fi
+          if [ -f npm-shrinkwrap.json ]; then
+            echo "Removing npm-shrinkwrap.json to ignore lockfile"
+            rm npm-shrinkwrap.json
+          fi
+
+      - name: Install dependencies (ignoring lockfile)
         run: npm install --no-audit --no-fund --legacy-peer-deps
-      - name: Lint scraper
+
+      - name: Lint scraper IKEA
         run: npm run lint:ikea
+
       - name: Build scraper
-        run: npm run build --workspace=apps/ikea-circularity
+        run: npm run build:ikea
+
       - name: Publish to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:

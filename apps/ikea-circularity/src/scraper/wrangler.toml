@@ -19,4 +19,6 @@ CONTENTFUL_CDA_TOKEN = ""
 CONTENTFUL_ENVIRONMENT = ""
 PORT = "3000"
 
+[triggers]
+crons = ["15 8-20 * * *"]
 
