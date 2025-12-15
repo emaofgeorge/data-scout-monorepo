@@ -2,6 +2,7 @@ name = "ikea-circularity-bot"
 main = "dist/main.js"
 account_id = "c7270a21371c405199b38c2ffb7d0420"
 compatibility_date = "2025-12-15"
+node_compat = true
 
 [vars]
 TELEGRAM_BOT_TOKEN = ""
