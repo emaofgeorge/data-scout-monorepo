@@ -2,8 +2,8 @@ name: Deploy Scraper to Google Cloud Functions
 on:
   push:
     paths:
-      - 'apps/ikea-circularity-scraper/src/**'
-      - '.github/workflows/deploy-scraper.yml'
+      - "apps/ikea-circularity-scraper/src/**"
+      - ".github/workflows/deploy-scraper.yml"
     branches: [main]
   workflow_dispatch:
 jobs:
@@ -24,8 +24,11 @@ jobs:
       - name: Lint IKEA
         run: npm run lint:ikea
 
-      - name: Build IKEA app
-        run: npm run build:ikea
+      - name: Build libraries
+        run: npm run build:libs
+
+      - name: Build scraper
+        run: npx nx run ikea-circularity-scraper:build:production
 
       - name: Deploy to Google Cloud Functions
         uses: google-github-actions/deploy-cloud-functions@v2

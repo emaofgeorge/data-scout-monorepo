@@ -2,8 +2,8 @@ name: Deploy Bot to Google Cloud Run
 on:
   push:
     paths:
-      - 'apps/ikea-circularity-bot/src/**'
-      - '.github/workflows/deploy-bot.yml'
+      - "apps/ikea-circularity-bot/src/**"
+      - ".github/workflows/deploy-bot.yml"
     branches: [main]
   workflow_dispatch:
 jobs:
@@ -42,6 +42,9 @@ jobs:
 
       - name: Lint IKEA
         run: npm run lint:ikea
+
+      - name: Build libraries
+        run: npm run build:libs
 
       - name: Build IKEA bot webhook
         run: npx nx build ikea-circularity-bot --configuration=webhook
