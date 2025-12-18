@@ -1,5 +1,5 @@
 {
-  "name": "@data-scout/ikea-circularity",
+  "name": "@data-scout/ikea-circularity-scraper",
   "version": "0.0.1",
   "private": true,
   "nx": {
@@ -12,15 +12,18 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "apps/ikea-circularity/dist",
+          "outputPath": "apps/ikea-circularity-scraper/dist",
           "format": [
             "cjs"
           ],
-          "bundle": false,
-          "main": "apps/ikea-circularity/src/main.ts",
-          "tsConfig": "apps/ikea-circularity/tsconfig.app.json",
+          "bundle": true,
+          "main": "apps/ikea-circularity-scraper/src/main.ts",
+          "tsConfig": "apps/ikea-circularity-scraper/tsconfig.app.json",
           "assets": [
-            "apps/ikea-circularity/src/assets"
+            "apps/ikea-circularity-scraper/src/assets"
+          ],
+          "external": [
+            "firebase-admin"
           ],
           "esbuildOptions": {
             "sourcemap": true,
@@ -48,8 +51,8 @@
         "cache": true,
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
-          "{workspaceRoot}/apps/ikea-circularity/dist/package.json",
-          "{workspaceRoot}/apps/ikea-circularity/dist/package-lock.json"
+          "{workspaceRoot}/apps/ikea-circularity-scraper/dist/package.json",
+          "{workspaceRoot}/apps/ikea-circularity-scraper/dist/package-lock.json"
         ],
         "options": {
           "buildTarget": "build"
@@ -61,7 +64,7 @@
         ],
         "cache": true,
         "outputs": [
-          "{workspaceRoot}/apps/ikea-circularity/dist/workspace_modules"
+          "{workspaceRoot}/apps/ikea-circularity-scraper/dist/workspace_modules"
         ],
         "executor": "@nx/js:copy-workspace-modules",
         "options": {
@@ -83,15 +86,15 @@
           "build"
         ],
         "options": {
-          "buildTarget": "@data-scout/ikea-circularity:build",
+          "buildTarget": "ikea-circularity-scraper:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "@data-scout/ikea-circularity:build:development"
+            "buildTarget": "ikea-circularity-scraper:build:development"
           },
           "production": {
-            "buildTarget": "@data-scout/ikea-circularity:build:production"
+            "buildTarget": "ikea-circularity-scraper:build:production"
           }
         }
       },

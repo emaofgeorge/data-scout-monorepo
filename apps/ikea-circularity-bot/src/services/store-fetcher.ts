@@ -1,59 +1,9 @@
-import * as cheerio from 'cheerio';
-import { BrowserHttpClient } from '@data-scout/core-scraper';
 import { IkeaStore } from '@data-scout/shared-types';
+import { scrapeIkeaStoresFromWebsite } from '@data-scout/core-ikea';
 import {
   fetchStoresFromContentful,
   validateContentfulStoresAgainstIkea,
 } from './contentful';
-
-interface IkeaStoreRaw {
-  store_id: string;
-  name: string;
-  city?: string;
-  address?: string;
-  [key: string]: unknown;
-}
-
-/**
- * Scrape all IKEA stores from the circular page
- * This is used for validation or fallback
- */
-async function scrapeIkeaStoresFromWebsite(): Promise<IkeaStore[]> {
-  try {
-    const url = 'https://www.ikea.com/it/it/circular/second-hand/';
-    console.log('🔍 Scraping IKEA stores from website:', url);
-
-    const httpClient = new BrowserHttpClient();
-    const html = await httpClient.get<string>(url);
-
-    const $ = cheerio.load(html);
-    const nextDataScript = $('#__NEXT_DATA__').html();
-
-    if (!nextDataScript) {
-      throw new Error('Could not find __NEXT_DATA__ in page');
-    }
-
-    const nextData = JSON.parse(nextDataScript);
-    const stores = nextData?.props?.pageProps?.stores;
-
-    if (!stores || !Array.isArray(stores)) {
-      throw new Error('Stores data not found in expected format');
-    }
-
-    console.log(`✅ Scraped ${stores.length} stores from IKEA website`);
-
-    return stores.map((store: IkeaStoreRaw) => ({
-      id: store.store_id.toString(),
-      name: store.name,
-      city: store.city || '',
-      region: extractRegion(store.city || store.name),
-      country: 'IT',
-    }));
-  } catch (error) {
-    console.error('❌ Error scraping IKEA stores from website:', error);
-    throw error;
-  }
-}
 
 /**
  * Main function to fetch IKEA stores
@@ -153,40 +103,4 @@ export async function fetchIkeaStores(): Promise<IkeaStore[]> {
     }
     throw error;
   }
-}
-
-/**
- * Try to extract region from city name (best effort)
- */
-function extractRegion(cityOrName: string): string {
-  const regionMap: Record<string, string> = {
-    milano: 'Lombardia',
-    'san giuliano': 'Lombardia',
-    corsico: 'Lombardia',
-    carugate: 'Lombardia',
-    roncadelle: 'Lombardia',
-    brescia: 'Lombardia',
-    roma: 'Lazio',
-    anagnina: 'Lazio',
-    bologna: 'Emilia-Romagna',
-    casalecchio: 'Emilia-Romagna',
-    parma: 'Emilia-Romagna',
-    padova: 'Veneto',
-    torino: 'Piemonte',
-    bari: 'Puglia',
-    genova: 'Liguria',
-    napoli: 'Campania',
-    pisa: 'Toscana',
-    firenze: 'Toscana',
-    catania: 'Sicilia',
-  };
-
-  const normalized = cityOrName.toLowerCase();
-  for (const [key, region] of Object.entries(regionMap)) {
-    if (normalized.includes(key)) {
-      return region;
-    }
-  }
-
-  return 'Unknown';
 }

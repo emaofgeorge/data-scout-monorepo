@@ -1,0 +1,33 @@
+{
+  "name": "core-ikea",
+  "root": "libs/core-ikea",
+  "sourceRoot": "libs/core-ikea/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/core-ikea",
+        "main": "libs/core-ikea/src/index.ts",
+        "tsConfig": "libs/core-ikea/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/core-ikea/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/core-ikea"],
+      "options": {
+        "jestConfig": "libs/core-ikea/jest.config.cts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

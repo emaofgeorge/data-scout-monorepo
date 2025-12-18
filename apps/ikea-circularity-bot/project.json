@@ -1,0 +1,59 @@
+{
+  "name": "ikea-circularity-bot",
+  "root": "apps/ikea-circularity-bot",
+  "sourceRoot": "apps/ikea-circularity-bot/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "apps/ikea-circularity-bot/dist",
+        "format": ["cjs"],
+        "bundle": true,
+        "main": "apps/ikea-circularity-bot/src/bot.ts",
+        "tsConfig": "apps/ikea-circularity-bot/tsconfig.app.json",
+        "assets": ["apps/ikea-circularity-bot/src/assets"],
+        "external": ["firebase-admin"],
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": { ".js": ".js" }
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/ikea-circularity-bot/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/ikea-circularity-bot"],
+      "options": {
+        "jestConfig": "apps/ikea-circularity-bot/jest.config.cts",
+        "passWithNoTests": true
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "ikea-circularity-bot:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "ikea-circularity-bot:build"
+        },
+        "production": {
+          "buildTarget": "ikea-circularity-bot:build"
+        },
+        "webhook": {
+          "buildTarget": "ikea-circularity-bot:build"
+        }
+      }
+    }
+  },
+  "tags": []
+}

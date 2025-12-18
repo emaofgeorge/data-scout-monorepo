@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@data-scout/core-ikea": ["dist/libs/core-ikea/src/index.d.ts"],
+      "@data-scout/core-ikea/*": ["dist/libs/core-ikea/src/*"]
+    },
     "composite": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,

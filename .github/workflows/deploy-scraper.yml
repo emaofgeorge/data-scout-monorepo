@@ -1,4 +1,4 @@
-name: Deploy Scraper to Cloudflare Workers
+name: Deploy Scraper to Google Cloud Functions
 on:
   push:
     paths:
@@ -40,16 +40,32 @@ jobs:
       - name: Install dependencies (ignoring lockfile)
         run: npm install --no-audit --no-fund --legacy-peer-deps
 
-      - name: Lint scraper IKEA
+      - name: Lint IKEA
         run: npm run lint:ikea
 
-      - name: Build scraper
+      - name: Build IKEA app
         run: npm run build:ikea
 
-      - name: Publish to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
+      - name: Deploy to Google Cloud Functions
+        uses: google-github-actions/deploy-cloud-functions@v2
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN_SCRAPER }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/ikea-circularity/src/scraper
-          command: publish
+          name: ikea-circularity-scraper
+          runtime: nodejs22
+          entry_point: main # Cambia se la tua funzione ha un altro nome
+          source_dir: apps/ikea-circularity/dist
+          availableMemoryMb: 512
+          timeout: 540s
+          region: europe-west1
+          env_vars: |
+            FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            CONTENTFUL_SPACE_ID=${{ secrets.CONTENTFUL_SPACE_ID }}
+            CONTENTFUL_ENVIRONMENT=${{ secrets.CONTENTFUL_ENVIRONMENT }}
+            CONTENTFUL_CDA_TOKEN=${{ secrets.CONTENTFUL_CDA_TOKEN }}
+            NOTIFICATIONS_ENABLED=true
+            SCRAPER_STORE_DELAY_MS=1000
+            SCRAPER_CATEGORY_DELAY_MS=500
+            SCRAPER_PRODUCT_DELAY_MS=500
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}

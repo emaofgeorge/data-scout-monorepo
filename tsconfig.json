@@ -7,9 +7,6 @@
       "path": "./apps/ikea-circularity-e2e"
     },
     {
-      "path": "./apps/ikea-circularity"
-    },
-    {
       "path": "./libs/core-scraper"
     },
     {
@@ -20,6 +17,9 @@
     },
     {
       "path": "./libs/shared-types"
+    },
+    {
+      "path": "./apps/ikea-circularity-scraper"
     }
   ]
 }

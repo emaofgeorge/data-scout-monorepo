@@ -43,6 +43,49 @@
       "exclude": ["apps/ikea-circularity-e2e/**/*"]
     }
   ],
+  "targetDefaults": {},
+  "projects": {
+    "ikea-circularity-bot": {
+      "root": "apps/ikea-circularity-bot",
+      "sourceRoot": "apps/ikea-circularity-bot/src",
+      "projectType": "application"
+    },
+    "ikea-circularity-scraper": {
+      "root": "apps/ikea-circularity-scraper",
+      "sourceRoot": "apps/ikea-circularity-scraper/src",
+      "projectType": "application"
+    },
+    "ikea-circularity-e2e": {
+      "root": "apps/ikea-circularity-e2e",
+      "sourceRoot": "apps/ikea-circularity-e2e/src",
+      "projectType": "application"
+    },
+    "core-ikea": {
+      "root": "libs/core-ikea",
+      "sourceRoot": "libs/core-ikea/src",
+      "projectType": "library"
+    },
+    "core-storage": {
+      "root": "libs/core-storage",
+      "sourceRoot": "libs/core-storage/src",
+      "projectType": "library"
+    },
+    "core-scraper": {
+      "root": "libs/core-scraper",
+      "sourceRoot": "libs/core-scraper/src",
+      "projectType": "library"
+    },
+    "core-notifications": {
+      "root": "libs/core-notifications",
+      "sourceRoot": "libs/core-notifications/src",
+      "projectType": "library"
+    },
+    "shared-types": {
+      "root": "libs/shared-types",
+      "sourceRoot": "libs/shared-types/src",
+      "projectType": "library"
+    }
+  },
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
       "cache": false,

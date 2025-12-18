@@ -1,0 +1,41 @@
+{
+  "name": "ikea-circularity-scraper",
+  "root": "apps/ikea-circularity-scraper",
+  "sourceRoot": "apps/ikea-circularity-scraper/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "apps/ikea-circularity-scraper/dist",
+        "format": ["cjs"],
+        "bundle": true,
+        "main": "apps/ikea-circularity-scraper/src/main.ts",
+        "tsConfig": "apps/ikea-circularity-scraper/tsconfig.app.json",
+        "assets": ["apps/ikea-circularity-scraper/src/assets"],
+        "external": ["firebase-admin"],
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": { ".js": ".js" }
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/ikea-circularity-scraper/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/ikea-circularity-scraper"],
+      "options": {
+        "jestConfig": "apps/ikea-circularity-scraper/jest.config.cts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

@@ -5,11 +5,11 @@
  * Syncs data to Firestore and handles product lifecycle (add/update/remove)
  */
 import 'dotenv/config';
-import { initializeFirebase } from './bot-setup';
+import { initializeFirebase } from '@data-scout/core-storage';
+import { fetchIkeaStores } from '@data-scout/core-ikea';
 import { IkeaCircularityScraper } from './scraper/ikea-scraper';
 import { IkeaSyncService } from './services/sync.service';
 import { NotificationService } from './services/notification.service';
-import { fetchIkeaStores } from './services/store-fetcher';
 
 async function main() {
   console.log('🚀 IKEA Circularity Scraper - Starting...\n');

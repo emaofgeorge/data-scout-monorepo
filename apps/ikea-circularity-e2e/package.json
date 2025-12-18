@@ -4,7 +4,8 @@
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@data-scout/ikea-circularity"
+      "ikea-circularity-scraper",
+      "ikea-circularity-bot"
     ],
     "targets": {
       "e2e": {
@@ -17,8 +18,8 @@
           "passWithNoTests": true
         },
         "dependsOn": [
-          "@data-scout/ikea-circularity:build",
-          "@data-scout/ikea-circularity:serve"
+          "@data-scout/ikea-circularity-scraper:build",
+          "@data-scout/ikea-circularity-bot:build"
         ]
       }
     }

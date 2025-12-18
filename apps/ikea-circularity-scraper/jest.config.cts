@@ -10,7 +10,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@data-scout/ikea-circularity',
+  displayName: '@data-scout/ikea-circularity-scraper',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
