@@ -43,7 +43,6 @@
       "exclude": ["apps/ikea-circularity-e2e/**/*"]
     }
   ],
-  "targetDefaults": {},
   "projects": {
     "ikea-circularity-bot": {
       "root": "apps/ikea-circularity-bot",
