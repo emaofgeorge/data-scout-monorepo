@@ -1,9 +1,6 @@
 name: Deploy Bot to Google Cloud Run
 on:
   push:
-    paths:
-      - "apps/ikea-circularity-bot/src/**"
-      - ".github/workflows/deploy-bot.yml"
     branches: [main]
   workflow_dispatch:
 jobs:

@@ -1,9 +1,6 @@
 name: Deploy Scraper to Google Cloud Functions
 on:
   push:
-    paths:
-      - "apps/ikea-circularity-scraper/src/**"
-      - ".github/workflows/deploy-scraper.yml"
     branches: [main]
   workflow_dispatch:
 jobs:
