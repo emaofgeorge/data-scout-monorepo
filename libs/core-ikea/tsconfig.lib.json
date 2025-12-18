@@ -8,7 +8,12 @@
     "declarationMap": true,
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@data-scout/shared-types": ["../shared-types/src/index.ts"],
+      "@data-scout/core-scraper": ["../core-scraper/src/index.ts"]
+    }
   },
   "references": [{ "path": "../shared-types" }, { "path": "../core-scraper" }],
   "include": ["src/**/*.ts"],
