@@ -3,6 +3,7 @@
   "root": "libs/core-ikea",
   "sourceRoot": "libs/core-ikea/src",
   "projectType": "library",
+  "implicitDependencies": ["shared-types", "core-scraper"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",

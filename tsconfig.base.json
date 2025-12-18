@@ -3,17 +3,10 @@
     "baseUrl": ".",
     "paths": {
       "@data-scout/core-ikea": ["libs/core-ikea/src/index.ts"],
-      "@data-scout/core-ikea/*": ["libs/core-ikea/src/*"],
       "@data-scout/shared-types": ["libs/shared-types/src/index.ts"],
-      "@data-scout/shared-types/*": ["libs/shared-types/src/*"],
       "@data-scout/core-scraper": ["libs/core-scraper/src/index.ts"],
-      "@data-scout/core-scraper/*": ["libs/core-scraper/src/*"],
       "@data-scout/core-storage": ["libs/core-storage/src/index.ts"],
-      "@data-scout/core-storage/*": ["libs/core-storage/src/*"],
-      "@data-scout/core-notifications": [
-        "libs/core-notifications/src/index.ts"
-      ],
-      "@data-scout/core-notifications/*": ["libs/core-notifications/src/*"]
+      "@data-scout/core-notifications": ["libs/core-notifications/src/index.ts"]
     },
     "composite": true,
     "declarationMap": true,
