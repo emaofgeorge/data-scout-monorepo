@@ -1,0 +1,33 @@
+{
+  "name": "core-storage",
+  "root": "libs/core-storage",
+  "sourceRoot": "libs/core-storage/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/core-storage",
+        "main": "libs/core-storage/src/index.ts",
+        "tsConfig": "libs/core-storage/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/core-storage/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/core-storage"],
+      "options": {
+        "jestConfig": "libs/core-storage/jest.config.cts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

@@ -13,7 +13,8 @@
         "main": "libs/core-ikea/src/index.ts",
         "tsConfig": "libs/core-ikea/tsconfig.lib.json",
         "assets": []
-      }
+      },
+      "dependsOn": ["^build"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

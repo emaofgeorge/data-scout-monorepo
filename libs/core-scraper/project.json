@@ -1,0 +1,33 @@
+{
+  "name": "core-scraper",
+  "root": "libs/core-scraper",
+  "sourceRoot": "libs/core-scraper/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/core-scraper",
+        "main": "libs/core-scraper/src/index.ts",
+        "tsConfig": "libs/core-scraper/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/core-scraper/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/core-scraper"],
+      "options": {
+        "jestConfig": "libs/core-scraper/jest.config.cts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

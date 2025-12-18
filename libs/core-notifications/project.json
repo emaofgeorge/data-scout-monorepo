@@ -1,0 +1,33 @@
+{
+  "name": "core-notifications",
+  "root": "libs/core-notifications",
+  "sourceRoot": "libs/core-notifications/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/core-notifications",
+        "main": "libs/core-notifications/src/index.ts",
+        "tsConfig": "libs/core-notifications/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/core-notifications/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/core-notifications"],
+      "options": {
+        "jestConfig": "libs/core-notifications/jest.config.cts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
