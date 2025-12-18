@@ -11,7 +11,7 @@
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "references": [],
+  "references": [{ "path": "../shared-types" }],
   "exclude": [
     "jest.config.ts",
     "jest.config.cts",
