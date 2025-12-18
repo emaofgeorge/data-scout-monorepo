@@ -2,12 +2,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@data-scout/core-ikea": ["dist/libs/core-ikea/src/index.d.ts"],
-      "@data-scout/core-ikea/*": ["dist/libs/core-ikea/src/*"],
-      "@data-scout/shared-types": ["dist/libs/shared-types/src/index.d.ts"],
-      "@data-scout/shared-types/*": ["dist/libs/shared-types/src/*"],
-      "@data-scout/core-scraper": ["dist/libs/core-scraper/src/index.d.ts"],
-      "@data-scout/core-scraper/*": ["dist/libs/core-scraper/src/*"]
+      "@data-scout/core-ikea": ["libs/core-ikea/src/index.ts"],
+      "@data-scout/core-ikea/*": ["libs/core-ikea/src/*"],
+      "@data-scout/shared-types": ["libs/shared-types/src/index.ts"],
+      "@data-scout/shared-types/*": ["libs/shared-types/src/*"],
+      "@data-scout/core-scraper": ["libs/core-scraper/src/index.ts"],
+      "@data-scout/core-scraper/*": ["libs/core-scraper/src/*"]
     },
     "composite": true,
     "declarationMap": true,
