@@ -1,9 +1,9 @@
 import { IkeaStore } from '@data-scout/shared-types';
-import { scrapeIkeaStoresFromWebsite } from '@data-scout/core-ikea';
 import {
+  scrapeIkeaStoresFromWebsite,
   fetchStoresFromContentful,
   validateContentfulStoresAgainstIkea,
-} from './contentful';
+} from '@data-scout/core-ikea';
 
 /**
  * Main function to fetch IKEA stores

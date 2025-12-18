@@ -43,8 +43,8 @@ jobs:
       - name: Lint IKEA
         run: npm run lint:ikea
 
-      - name: Build libraries
-        run: npm run build:libs
+      - name: Build bot dependencies
+        run: npm run build:bot-deps
 
       - name: Build IKEA bot webhook
         run: npx nx build ikea-circularity-bot --configuration=webhook

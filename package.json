@@ -12,6 +12,8 @@
     "build:ikea": "nx run-many -t build --projects=shared-types,core-scraper,core-storage,core-notifications,core-ikea,ikea-circularity-scraper",
     "build:bot": "nx run-many -t build --projects=shared-types,core-scraper,core-storage,core-notifications,core-ikea,ikea-circularity-bot",
     "build:libs": "nx run-many -t build --projects=shared-types,core-scraper,core-storage,core-notifications,core-ikea",
+    "build:scraper-deps": "nx run-many -t build --projects=shared-types,core-scraper,core-storage,core-ikea",
+    "build:bot-deps": "nx run-many -t build --projects=shared-types,core-scraper,core-storage,core-notifications,core-ikea",
     "test": "nx run-many -t test",
     "test:ikea": "nx run-many -t test --projects=ikea-circularity-scraper,ikea-circularity-bot",
     "test:watch": "nx run-many -t test --projects=ikea-circularity-scraper,ikea-circularity-bot --watch",

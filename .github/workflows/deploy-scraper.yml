@@ -24,8 +24,8 @@ jobs:
       - name: Lint IKEA
         run: npm run lint:ikea
 
-      - name: Build libraries
-        run: npm run build:libs
+      - name: Build scraper dependencies
+        run: npm run build:scraper-deps
 
       - name: Build scraper
         run: npx nx run ikea-circularity-scraper:build:production
