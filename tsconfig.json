@@ -13,6 +13,9 @@
       "path": "./libs/core-storage"
     },
     {
+      "path": "./libs/core-ikea"
+    },
+    {
       "path": "./libs/core-notifications"
     },
     {
