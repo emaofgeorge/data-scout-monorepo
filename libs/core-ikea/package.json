@@ -15,9 +15,6 @@
     }
   },
   "dependencies": {
-    "@data-scout/shared-types": "*",
-    "@data-scout/core-storage": "*",
-    "@data-scout/core-scraper": "*",
     "axios": "^1.6.2",
     "cheerio": "^1.1.2",
     "contentful": "^10.6.14"
