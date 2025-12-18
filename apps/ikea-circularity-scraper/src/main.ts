@@ -130,5 +130,10 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-// Run the application
-main();
+// Export for Cloud Functions
+export { main };
+
+// Run the application if called directly
+if (require.main === module) {
+  main();
+}

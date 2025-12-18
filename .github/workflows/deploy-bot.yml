@@ -1,9 +1,8 @@
-name: Deploy Bot to Google Cloud Functions
-
+name: Deploy Bot to Google Cloud Run
 on:
   push:
     paths:
-      - 'apps/ikea-circularity/**'
+      - 'apps/ikea-circularity-bot/src/**'
       - '.github/workflows/deploy-bot.yml'
     branches: [main]
   workflow_dispatch:
@@ -38,22 +37,31 @@ jobs:
             rm npm-shrinkwrap.json
           fi
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (ignoring lockfile)
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
-      - name: Build bot
-        run: npm run build --workspace=apps/ikea-circularity
+      - name: Lint IKEA
+        run: npm run lint:ikea
 
-      - name: Deploy to Google Cloud Functions
-        uses: google-github-actions/deploy-cloud-functions@v2
+      - name: Build IKEA bot webhook
+        run: npx nx build ikea-circularity-bot --configuration=webhook
+
+      - name: Deploy to Google Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
         with:
-          name: ikea-circularity-bot
-          runtime: nodejs22
-          entry_point: main # Express app exported as `main`
-          source_dir: apps/ikea-circularity/dist
+          service: ikea-circularity-bot
+          source: apps/ikea-circularity-bot/dist
           region: europe-west1
           env_vars: |
+            NODE_ENV=production
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             TELEGRAM_WEBHOOK_URL=${{ secrets.TELEGRAM_WEBHOOK_URL }}
+            FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+            CONTENTFUL_SPACE_ID=${{ secrets.CONTENTFUL_SPACE_ID }}
+            CONTENTFUL_ENVIRONMENT=${{ secrets.CONTENTFUL_ENVIRONMENT }}
+            CONTENTFUL_CDA_TOKEN=${{ secrets.CONTENTFUL_CDA_TOKEN }}
+            NOTIFICATIONS_ENABLED=true
+            CLEAR_PREFS_ON_UNSUBSCRIBE=true
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}

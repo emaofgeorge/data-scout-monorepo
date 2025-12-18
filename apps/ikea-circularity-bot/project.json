@@ -20,6 +20,11 @@
           "sourcemap": true,
           "outExtension": { ".js": ".js" }
         }
+      },
+      "configurations": {
+        "webhook": {
+          "main": "apps/ikea-circularity-bot/src/webhook.ts"
+        }
       }
     },
     "lint": {

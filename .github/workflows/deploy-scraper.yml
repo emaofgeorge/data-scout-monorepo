@@ -2,7 +2,7 @@ name: Deploy Scraper to Google Cloud Functions
 on:
   push:
     paths:
-      - 'apps/ikea-circularity/src/scraper/**'
+      - 'apps/ikea-circularity-scraper/src/**'
       - '.github/workflows/deploy-scraper.yml'
     branches: [main]
   workflow_dispatch:
@@ -52,7 +52,7 @@ jobs:
           name: ikea-circularity-scraper
           runtime: nodejs22
           entry_point: main # Cambia se la tua funzione ha un altro nome
-          source_dir: apps/ikea-circularity/dist
+          source_dir: apps/ikea-circularity-scraper/dist
           availableMemoryMb: 512
           timeout: 540s
           region: europe-west1
