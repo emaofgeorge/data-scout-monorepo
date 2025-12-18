@@ -21,6 +21,13 @@
           "outExtension": { ".js": ".js" }
         }
       },
+      "dependsOn": [
+        "shared-types:build",
+        "core-scraper:build",
+        "core-storage:build",
+        "core-ikea:build",
+        "core-notifications:build"
+      ],
       "configurations": {
         "webhook": {
           "main": "apps/ikea-circularity-bot/src/webhook.ts"

@@ -14,7 +14,7 @@
         "tsConfig": "libs/core-ikea/tsconfig.lib.json",
         "assets": []
       },
-      "dependsOn": ["^build"]
+      "dependsOn": ["shared-types:build", "core-scraper:build"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

@@ -20,7 +20,13 @@
           "sourcemap": true,
           "outExtension": { ".js": ".js" }
         }
-      }
+      },
+      "dependsOn": [
+        "shared-types:build",
+        "core-scraper:build",
+        "core-storage:build",
+        "core-ikea:build"
+      ]
     },
     "lint": {
       "executor": "@nx/eslint:lint",
