@@ -46,6 +46,11 @@ jobs:
       - name: Build IKEA bot webhook
         run: npx nx build ikea-circularity-bot --configuration=webhook
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - name: Deploy to Google Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
@@ -64,5 +69,3 @@ jobs:
             CONTENTFUL_CDA_TOKEN=${{ secrets.CONTENTFUL_CDA_TOKEN }}
             NOTIFICATIONS_ENABLED=true
             CLEAR_PREFS_ON_UNSUBSCRIBE=true
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}

@@ -24,6 +24,11 @@ jobs:
       - name: Build scraper
         run: npm run build:scraper
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - name: Deploy to Google Cloud Functions
         uses: google-github-actions/deploy-cloud-functions@v2
         with:
@@ -45,5 +50,3 @@ jobs:
             SCRAPER_STORE_DELAY_MS=1000
             SCRAPER_CATEGORY_DELAY_MS=500
             SCRAPER_PRODUCT_DELAY_MS=500
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
