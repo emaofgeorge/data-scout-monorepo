@@ -33,6 +33,7 @@ jobs:
           source_dir: apps/ikea-circularity-scraper/dist
           timeout: 540s
           region: europe-west1
+          project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
           env_vars: |
             FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
             FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
