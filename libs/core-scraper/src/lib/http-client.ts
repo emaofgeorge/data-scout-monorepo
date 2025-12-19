@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import UserAgent from 'user-agents';
-import { IkeaStore } from '@data-scout/shared-types';
 
 /**
  * HTTP Client that mimics a real Chrome browser
@@ -10,8 +9,7 @@ export class BrowserHttpClient {
   private client: AxiosInstance;
   private userAgent: UserAgent;
 
-  constructor(baseURL?: string, ikeaStore?: IkeaStore) {
-    console.log('IkeaStore', ikeaStore);
+  constructor(baseURL?: string) {
     this.userAgent = new UserAgent({ deviceCategory: 'desktop' });
 
     this.client = axios.create({
