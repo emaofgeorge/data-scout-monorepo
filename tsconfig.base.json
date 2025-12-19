@@ -25,5 +25,12 @@
     "strict": true,
     "target": "es2022",
     "esModuleInterop": true
-  }
+  },
+  "references": [
+    { "path": "./libs/shared-types" },
+    { "path": "./libs/core-scraper" },
+    { "path": "./libs/core-storage" },
+    { "path": "./libs/core-notifications" },
+    { "path": "./libs/core-ikea" }
+  ]
 }

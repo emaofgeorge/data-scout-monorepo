@@ -21,11 +21,8 @@ jobs:
       - name: Lint IKEA
         run: npm run lint:ikea
 
-      - name: Build scraper dependencies
-        run: npm run build:scraper-deps
-
       - name: Build scraper
-        run: npx nx run ikea-circularity-scraper:build:production
+        run: npm run build:scraper
 
       - name: Deploy to Google Cloud Functions
         uses: google-github-actions/deploy-cloud-functions@v2
@@ -34,7 +31,6 @@ jobs:
           runtime: nodejs22
           entry_point: main # Cambia se la tua funzione ha un altro nome
           source_dir: apps/ikea-circularity-scraper/dist
-          availableMemoryMb: 512
           timeout: 540s
           region: europe-west1
           env_vars: |
