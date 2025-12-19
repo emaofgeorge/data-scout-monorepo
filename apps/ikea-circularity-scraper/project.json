@@ -44,7 +44,6 @@
         "esbuildOptions": {
           "sourcemap": false,
           "outExtension": { ".js": ".js" },
-          "outfile": "function.js",
           "minify": true
         }
       },
