@@ -19,7 +19,7 @@
         "esbuildOptions": {
           "sourcemap": true,
           "outExtension": { ".js": ".js" },
-          "outfile": "function.js"
+          "outfile": "index.js"
         }
       },
       "dependsOn": [
