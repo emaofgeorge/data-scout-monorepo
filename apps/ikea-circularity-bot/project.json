@@ -12,7 +12,7 @@
         "outputPath": "apps/ikea-circularity-bot/dist",
         "format": ["cjs"],
         "bundle": true,
-        "main": "apps/ikea-circularity-bot/src/bot.ts",
+        "main": "apps/ikea-circularity-bot/src/webhook.ts",
         "tsConfig": "apps/ikea-circularity-bot/tsconfig.app.json",
         "assets": ["apps/ikea-circularity-bot/src/assets"],
         "external": ["firebase-admin"],
