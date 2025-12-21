@@ -1,10 +1,3 @@
-/**
- * Telegram Bot Webhook Server
- *
- * Standalone Express server for handling Telegram webhooks in production
- * This should be deployed separately from the scraper
- */
-
 import 'dotenv/config';
 import express from 'express';
 import { initializeFirebase, initializeBot } from './bot-setup';
@@ -13,38 +6,27 @@ const app = express();
 app.use(express.json());
 
 let bot: any = null;
+let ready = false;
 
-/**
- * Health check endpoint
- */
+// Health endpoint: risponde subito
 app.get('/health', (req, res) => {
   res.json({
-    status: 'ok',
+    status: ready ? 'ok' : 'starting',
     timestamp: new Date().toISOString(),
     bot: bot ? 'initialized' : 'not initialized',
+    port: process.env.PORT,
+    nodeVersion: process.version,
   });
 });
 
-/**
- * Telegram webhook endpoint
- * This is where Telegram sends all updates (messages, callbacks, etc.)
- */
+// Webhook endpoint: 503 finché il bot non è pronto
 app.post('/webhook', async (req, res) => {
   if (!bot) {
-    console.error('Bot not initialized');
     res.status(503).json({ error: 'Bot not ready' });
     return;
   }
-
   try {
-    const update = req.body;
-
-    // Log update for debugging (remove in production)
-    console.log('Received update:', JSON.stringify(update, null, 2));
-
-    // Handle the update using Telegraf's built-in webhook handler
-    await bot.handleWebhook(update);
-
+    await bot.handleWebhook(req.body);
     res.sendStatus(200);
   } catch (error) {
     console.error('Webhook error:', error);
@@ -52,85 +34,42 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-/**
- * Root endpoint
- */
 app.get('/', (req, res) => {
-  res.json({
-    service: 'IKEA Circularity Telegram Bot',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      webhook: '/webhook (POST)',
-    },
-  });
+  res.json({ service: 'IKEA Circularity Telegram Bot', version: '1.0.0' });
 });
 
-/**
- * Start the server
- */
-async function startServer(): Promise<void> {
-  const port = parseInt(process.env.PORT || '3000', 10);
-
+async function init() {
   try {
-    console.log('\n🚀 Starting Telegram Bot Webhook Server...\n');
-
-    // Initialize Firebase
+    console.log('🔥 Initializing Firebase...');
     await initializeFirebase();
+    console.log('✅ Firebase initialized');
 
-    // Initialize bot e set webhook
     if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.TELEGRAM_WEBHOOK_URL) {
       throw new Error(
-        'TELEGRAM_BOT_TOKEN e TELEGRAM_WEBHOOK_URL sono richiesti'
+        'Env TELEGRAM_BOT_TOKEN e TELEGRAM_WEBHOOK_URL richieste'
       );
     }
+
+    console.log('🤖 Initializing bot...');
     bot = await initializeBot({
       token: process.env.TELEGRAM_BOT_TOKEN,
       webhookUrl: process.env.TELEGRAM_WEBHOOK_URL,
     });
-    console.log(`✓ Webhook configured: ${process.env.TELEGRAM_WEBHOOK_URL}`);
+    console.log(
+      `✅ Bot initialized with webhook: ${process.env.TELEGRAM_WEBHOOK_URL}`
+    );
 
-    // Start Express server
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`\n✓ Server running on port ${port}`);
-      console.log(`📡 Webhook endpoint: http://0.0.0.0:${port}/webhook`);
-      console.log(
-        '\n⚠️  Make sure your webhook URL is publicly accessible and uses HTTPS!\n'
-      );
-    });
-  } catch (error) {
-    console.error('\n❌ Server startup failed:', error);
-    process.exit(1);
+    ready = true;
+  } catch (err) {
+    console.error('❌ Initialization failed:', err);
+    // Non uscire subito: il server rimane su, health = starting, per debug.
+    // Se preferisci uscire, usa process.exit(1) e sappi che Render non vedrà la porta.
   }
 }
 
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('\n👋 SIGTERM received, shutting down gracefully...');
-  if (bot) {
-    bot.stop().then(() => {
-      console.log('✓ Bot stopped');
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
-});
-
-process.on('SIGINT', () => {
-  console.log('\n👋 SIGINT received, shutting down gracefully...');
-  if (bot) {
-    bot.stop().then(() => {
-      console.log('✓ Bot stopped');
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
-});
-
-// Start the server
-startServer().catch((error) => {
-  console.error('Fatal error:', error);
-  process.exit(1);
+const port = parseInt(process.env.PORT || '3000', 10);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`✅ Server listening on port ${port} (0.0.0.0)`);
+  // Avvia le inizializzazioni in background
+  init().catch((err) => console.error('Fatal init error:', err));
 });
