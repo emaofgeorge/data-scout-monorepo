@@ -7,7 +7,7 @@
     "start:dev": "nx serve ikea-circularity-scraper --watch",
     "start:scraper": "nx serve ikea-circularity-scraper",
     "start:bot": "nx serve ikea-circularity-bot",
-    "start:webhook": "nx serve ikea-circularity-bot --configuration=webhook",
+    "start:webhook": "node dist/apps/ikea-circularity-bot/webhook.js",
     "build": "nx run-many -t build",
     "build:libs": "nx run-many -t build --projects=shared-types,core-scraper,core-storage,core-notifications,core-ikea",
     "build:scraper": "nx build ikea-circularity-scraper --configuration=production",
