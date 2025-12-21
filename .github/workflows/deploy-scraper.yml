@@ -27,6 +27,9 @@ jobs:
       - name: Rename main.js to function.js
         run: mv apps/ikea-circularity-scraper/dist/main.js apps/ikea-circularity-scraper/dist/function.js
 
+      - name: Verify function.js exists
+        run: ls -la apps/ikea-circularity-scraper/dist/
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
