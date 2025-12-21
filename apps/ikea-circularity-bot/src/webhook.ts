@@ -70,7 +70,7 @@ app.get('/', (req, res) => {
  * Start the server
  */
 async function startServer(): Promise<void> {
-  const port = process.env.PORT || 3000;
+  const port = parseInt(process.env.PORT || '3000', 10);
 
   try {
     console.log('\n🚀 Starting Telegram Bot Webhook Server...\n');
@@ -91,9 +91,9 @@ async function startServer(): Promise<void> {
     console.log(`✓ Webhook configured: ${process.env.TELEGRAM_WEBHOOK_URL}`);
 
     // Start Express server
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
       console.log(`\n✓ Server running on port ${port}`);
-      console.log(`📡 Webhook endpoint: http://localhost:${port}/webhook`);
+      console.log(`📡 Webhook endpoint: http://0.0.0.0:${port}/webhook`);
       console.log(
         '\n⚠️  Make sure your webhook URL is publicly accessible and uses HTTPS!\n'
       );
