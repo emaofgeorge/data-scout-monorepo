@@ -27,6 +27,25 @@ jobs:
       - name: Rename main.js to function.js
         run: mv apps/ikea-circularity-scraper/dist/main.js apps/ikea-circularity-scraper/dist/function.js
 
+      - name: Create package.json for deployment
+        run: |
+          cat > apps/ikea-circularity-scraper/dist/package.json << EOF
+          {
+            "name": "ikea-circularity-scraper",
+            "version": "1.0.0",
+            "dependencies": {
+              "dotenv": "^17.2.3",
+              "firebase-admin": "^13.6.0",
+              "axios": "^1.6.0",
+              "cheerio": "^1.1.2",
+              "user-agents": "^1.1.669"
+            }
+          }
+          EOF
+
+      - name: Install production dependencies in dist
+        run: cd apps/ikea-circularity-scraper/dist && npm install --production
+
       - name: Verify function.js exists
         run: ls -la apps/ikea-circularity-scraper/dist/
 
@@ -40,7 +59,7 @@ jobs:
         with:
           name: ikea-circularity-scraper
           runtime: nodejs22
-          entry_point: main # Cambia se la tua funzione ha un altro nome
+          entry_point: function # Corrisponde all'export nel main.ts
           source_dir: apps/ikea-circularity-scraper/dist
           timeout: 540s
           region: europe-west1
