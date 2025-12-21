@@ -9,13 +9,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install dependencies (ignoring lockfile)
+      - name: Install deps (root)
         run: npm install
 
       - name: Lint IKEA
@@ -23,30 +22,19 @@ jobs:
 
       - name: Build scraper
         run: npm run build:scraper
+        # Con il tuo project.json esce in apps/ikea-circularity-scraper/dist/function.js
 
-      - name: Rename main.js to function.js
-        run: mv apps/ikea-circularity-scraper/dist/main.js apps/ikea-circularity-scraper/dist/function.js
+      # NON rinominare i file (non serve). Usa l’export name come entry_point.
 
-      - name: Create package.json for deployment
+      - name: Prepare dist package
         run: |
-          cat > apps/ikea-circularity-scraper/dist/package.json << EOF
-          {
-            "name": "ikea-circularity-scraper",
-            "version": "1.0.0",
-            "dependencies": {
-              "dotenv": "^17.2.3",
-              "firebase-admin": "^13.6.0",
-              "axios": "^1.6.0",
-              "cheerio": "^1.1.2",
-              "user-agents": "^1.1.669"
-            }
-          }
-          EOF
+          cp package.json apps/ikea-circularity-scraper/dist/package.json
+          cp package-lock.json apps/ikea-circularity-scraper/dist/package-lock.json
 
-      - name: Install production dependencies in dist
-        run: cd apps/ikea-circularity-scraper/dist && npm install --production
+      - name: Install production deps in dist
+        run: cd apps/ikea-circularity-scraper/dist && npm ci --omit=dev
 
-      - name: Verify function.js exists
+      - name: Verify dist contents
         run: ls -la apps/ikea-circularity-scraper/dist/
 
       - name: Authenticate to Google Cloud
@@ -59,7 +47,7 @@ jobs:
         with:
           name: ikea-circularity-scraper
           runtime: nodejs22
-          entry_point: function # Corrisponde all'export nel main.ts
+          entry_point: scrape # <-- DEVE corrispondere al nome dell’export
           source_dir: apps/ikea-circularity-scraper/dist
           timeout: 540s
           region: europe-west1
